@@ -1,0 +1,8 @@
+TODO List
+=========
+
+* Fill up README file
+* Clean code base
+* Add better error handling
+* Add support for tests with missing parameters
+* Add support for tests with optional parameters
