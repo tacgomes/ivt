@@ -32,16 +32,18 @@ def run_command(cmd, settings, should_succeed):
 
 def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                  settings, optional_params, should_succeed):
-    key_value_match=re.search('(-{1,2}\w+)=(\$\w+)' ,line)
-    # Test whether it is an optional parameter
-    match = re.search(r'\[(.*?\$\w+.*?)\]',line)
-    if match:
-        l2 = line.replace(match.group(0), "", 1)
-        match2=re.search('(\w+)=(\$\w+)', match.group(1))
-        optional_params.append(match2.group(1))
+    optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]',line)
+    key_value_match=re.search('(-{1,2}\w+)=(\$\w+)', line)
+    if optional_param_match:
+        aux_match=re.search('(\w+)=(\$\w+)', optional_param_match.group(1))
+        optional_params.append(aux_match.group(1))
+        # Validate command without the optional setting
+        l2 = line.replace(optional_param_match.group(0), "", 1)
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
             settings, optional_params, should_succeed)
-        l2 = line.replace(match.group(0), match.group(1), 1)
+        # Validate command with the optional setting
+        l2 = line.replace(optional_param_match.group(0),
+                          optional_param_match.group(1), 1)
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
             settings, optional_params, should_succeed)
     elif key_value_match:
