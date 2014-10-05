@@ -31,28 +31,28 @@ def run_command(cmd, settings, should_succeed):
 
 
 def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
-                 settings, optionals, should_succeed):
+                 settings, optional_params, should_succeed):
     key_value_match=re.search('(-{1,2}\w+)=(\$\w+)' ,line)
     # Test whether it is an optional parameter
     match = re.search(r'\[(.*?\$\w+.*?)\]',line)
     if match:
         l2 = line.replace(match.group(0), "", 1)
         match2=re.search('(\w+)=(\$\w+)', match.group(1))
-        optionals.append(match2.group(1))
+        optional_params.append(match2.group(1))
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            settings, optionals, should_succeed)
+            settings, optional_params, should_succeed)
         l2 = line.replace(match.group(0), match.group(1), 1)
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            settings, optionals, should_succeed)
+            settings, optional_params, should_succeed)
     elif key_value_match:
         var_name=key_value_match.group(2)
-        if var_name[1:] not in optionals:
+        if var_name[1:] not in optional_params:
             l2 = line.replace(key_value_match.group(), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         settings, optionals, False)
+                         settings, optional_params, False)
             l2 = line.replace(key_value_match.group(2), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         settings, optionals, False)
+                         settings, optional_params, False)
         if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
@@ -61,34 +61,34 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                 matches2=re.search(regex,str(ts))
                 if matches2:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 settings, optionals, should_succeed)
+                                 settings, optional_params, should_succeed)
                 else:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 settings, optionals, False)
+                                 settings, optional_params, False)
         elif var_name[1:] in ranges_dict:
             (min_value, max_value) = ranges_dict[var_name[1:]]
             if min_value:
                 l2 = line.replace(var_name, str(min_value), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             settings, optionals, should_succeed)
+                             settings, optional_params, should_succeed)
                 l2 = line.replace(var_name, str(min_value - 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             settings, optionals, False)
+                             settings, optional_params, False)
             if max_value:
                 l2 = line.replace(var_name, str(max_value), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             settings, optionals, should_succeed)
+                             settings, optional_params, should_succeed)
                 l2 = line.replace(var_name, str(max_value + 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             settings, optionals, False)
+                             settings, optional_params, False)
         elif var_name[1:] in enum_dict:
             for enum in enum_dict[var_name[1:]]:
                 l2 = line.replace(var_name, "'" + enum + "'", 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             settings, optionals, should_succeed)
+                             settings, optional_params, should_succeed)
             l2 = line.replace(var_name, "'not-existet-enum'", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         settings, optionals, False)
+                         settings, optional_params, False)
         else:
             sys.stderr.write("Error: variable '{0}' is undefined\n".format(
                              var_name))
