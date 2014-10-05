@@ -50,6 +50,9 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
             l2 = line.replace(key_value_match.group(), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          error_strings, optionals, False)
+            l2 = line.replace(key_value_match.group(2), "", 1)
+            validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
+                         error_strings, optionals, False)
         if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
