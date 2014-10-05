@@ -5,4 +5,8 @@ TODO List
 * Clean code base
 * Add better error handling
 * Add support for tests with nested optional parameters
+* Add support for mutual exclusive parameters
+* Change running command line to have key and values separated by a
+* space instead of a comma: separating using a space works for both
+  short and long options.
 * Document that we are trying to maitain compatiblility with Python 2.6
