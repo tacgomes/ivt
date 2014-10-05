@@ -5,5 +5,4 @@ TODO List
 * Clean code base
 * Add better error handling
 * Add support for tests with nested optional parameters
-* Add support for tests with *valid* numeric ranges
 * Document that we are trying to maitain compatiblility with Python 2.6
