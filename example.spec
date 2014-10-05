@@ -1,8 +1,13 @@
 # Spec file for testing validation for example.py
 
-regex username=[a-z_][a-z0-9_]{0,30}
+enum  verbosity=info,warn,error
 range hour=0..24
-enum  day=mon,tue,wed,thu,sat,sun
+range minsec=0..60
+regex timezone=\w+
+regex username=[a-z_][a-z0-9_]+
 
-./example.py set-time --hour=$hour [ --day=$day ]
-#./example.py adduser --username=$username
+./example.py help
+./example.py show-log [ --verbosity=$verbosity ]
+./example.py show-log [ -v=$verbosity ]
+./example.py set-time --hour=$hour --minute=$minsec --second=$minsec [ --timezone=$timezone ]
+./example.py add-user --username=$username
