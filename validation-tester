@@ -48,7 +48,7 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
             settings, optional_params, should_succeed)
     elif key_value_match:
         var_name=key_value_match.group(2)
-        if var_name[1:] not in optional_params:
+        if key_value_match.group(1).lstrip('-') not in optional_params:
             l2 = line.replace(key_value_match.group(), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          settings, optional_params, False)
