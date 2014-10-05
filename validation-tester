@@ -107,7 +107,7 @@ def proccess_line(line, cmd_lines, regex_dict, ranges_dict,
                   enum_dict):
     if line.startswith('regex'):
         match = re.match("regex\W*(.+)=(.+)", line)
-        regex_dict[match.group(1)] = match.group(2)
+        regex_dict[match.group(1)] = '^' + match.group(2) + '$'
     elif line.startswith('range'):
         match = re.match("range\W*(.+)=(.+)", line)
         var_name = match.group(1)
