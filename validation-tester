@@ -66,7 +66,7 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                          error_strings, False)
         else:
             sys.stderr.write("Error: variable '{0}' is undefined\n".format(
-                             var_name)
+                             var_name))
             sys.exit(1)
     else:
         run_command(line, error_strings, should_succeed)
