@@ -4,7 +4,7 @@ TODO List
 * Fill up README file
 * Clean code base
 * Add better error handling
+* Improve order in which the commads run 
 * Add support for tests with nested optional parameters
 * Add support for mutual exclusive parameters
-* Change running command line to have key and values separated by a
 * Document that we are trying to maitain compatiblility with Python 2.6
