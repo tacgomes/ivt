@@ -131,7 +131,7 @@ def main():
     print enum_dict
     print cmd_lines
     for cmd_line in cmd_lines:
-        validate_cmd(line, regex_dict, ranges_dict, enum_dict,
+        validate_cmd(cmd_line, regex_dict, ranges_dict, enum_dict,
                      options.error_string, True)
 
 
