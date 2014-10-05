@@ -33,12 +33,12 @@ def run_command(cmd, error_strings, should_succeed):
 def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                  error_strings, should_succeed):
     if re.search('\$\w+',line):
-        varname=re.search('\$\w+',line).group(0)
-        if varname[1:] in regex_dict:
+        var_name=re.search('\$\w+',line).group(0)
+        if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
-                l2 = line.replace(varname, "'" + str(ts) + "'", 1)
-                regex=regex_dict[varname[1:]]
+                l2 = line.replace(var_name, "'" + str(ts) + "'", 1)
+                regex=regex_dict[var_name[1:]]
                 matches2=re.search(regex,str(ts))
                 if matches2:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
@@ -46,27 +46,27 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                 else:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                                  error_strings, False)
-        elif varname[1:] in ranges_dict:
-            (min_value, max_value) = ranges_dict[varname[1:]]
+        elif var_name[1:] in ranges_dict:
+            (min_value, max_value) = ranges_dict[var_name[1:]]
             if min_value:
-                l2 = line.replace(varname, str(min_value - 1), 1)
+                l2 = line.replace(var_name, str(min_value - 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                              error_strings, False)
             if max_value:
-                l2 = line.replace(varname, str(max_value + 1), 1)
+                l2 = line.replace(var_name, str(max_value + 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                              error_strings, False)
-        elif varname[1:] in enum_dict:
-            for enum in enum_dict[varname[1:]]:
-                l2 = line.replace(varname, "'" + enum + "'", 1)
+        elif var_name[1:] in enum_dict:
+            for enum in enum_dict[var_name[1:]]:
+                l2 = line.replace(var_name, "'" + enum + "'", 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                              error_strings, should_succeed)
-            l2 = line.replace(varname, "'not-existet-enum'", 1)
+            l2 = line.replace(var_name, "'not-existet-enum'", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          error_strings, False)
         else:
             sys.stderr.write("Error: variable '{0}' is undefined\n".format(
-                             varname)
+                             var_name)
             sys.exit(1)
     else:
         run_command(line, error_strings, should_succeed)
