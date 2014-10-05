@@ -52,9 +52,13 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
             l2 = line.replace(key_value_match.group(), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          settings, optional_params, False)
-            l2 = line.replace(key_value_match.group(2), "", 1)
+            l2 = line.replace('=' + key_value_match.group(2), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          settings, optional_params, False)
+        # Replace the equals sign by a space, as it will work for both
+        # short and GNU long options
+        line = line.replace(key_value_match.group(0),
+                            ' '.join(key_value_match.groups()), 1)
         if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
