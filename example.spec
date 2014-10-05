@@ -6,4 +6,5 @@ enum  day=mon,tue,wed,thu,sat,sun
 
 #./example.py --hour $hour
 #./example.py --username $username
-./example.py --day $day
+#./example.py --day $day
+./example.py foo [ --day $day ] [ --hour $hour ]
