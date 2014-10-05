@@ -7,7 +7,7 @@ import shlex
 import optparse
 
 
-def run_command(cmd, error_strings, should_succeed):
+def run_command(cmd, settings, should_succeed):
     print "Running", cmd, should_succeed
     process = subprocess.Popen(shlex.split(cmd),
                                stdout=subprocess.PIPE,
@@ -19,8 +19,8 @@ def run_command(cmd, error_strings, should_succeed):
     if should_succeed == False:
         if process.returncode == 0:
             test_failed = True
-        if error_strings:
-            for es in error_strings:
+        if settings.error_string:
+            for es in settings.error_string:
                  if es in errdata:
                      break
             else:
@@ -31,7 +31,7 @@ def run_command(cmd, error_strings, should_succeed):
 
 
 def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
-                 error_strings, optionals, should_succeed):
+                 settings, optionals, should_succeed):
     key_value_match=re.search('(-{1,2}\w+)=(\$\w+)' ,line)
     # Test whether it is an optional parameter
     match = re.search(r'\[(.*?\$\w+.*?)\]',line)
@@ -40,19 +40,19 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
         match2=re.search('(\w+)=(\$\w+)', match.group(1))
         optionals.append(match2.group(1))
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            error_strings, optionals, should_succeed)
+            settings, optionals, should_succeed)
         l2 = line.replace(match.group(0), match.group(1), 1)
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            error_strings, optionals, should_succeed)
+            settings, optionals, should_succeed)
     elif key_value_match:
         var_name=key_value_match.group(2)
         if var_name[1:] not in optionals:
             l2 = line.replace(key_value_match.group(), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         error_strings, optionals, False)
+                         settings, optionals, False)
             l2 = line.replace(key_value_match.group(2), "", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         error_strings, optionals, False)
+                         settings, optionals, False)
         if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
@@ -61,40 +61,40 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                 matches2=re.search(regex,str(ts))
                 if matches2:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 error_strings, optionals, should_succeed)
+                                 settings, optionals, should_succeed)
                 else:
                     validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 error_strings, optionals, False)
+                                 settings, optionals, False)
         elif var_name[1:] in ranges_dict:
             (min_value, max_value) = ranges_dict[var_name[1:]]
             if min_value:
                 l2 = line.replace(var_name, str(min_value), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             error_strings, optionals, should_succeed)
+                             settings, optionals, should_succeed)
                 l2 = line.replace(var_name, str(min_value - 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             error_strings, optionals, False)
+                             settings, optionals, False)
             if max_value:
                 l2 = line.replace(var_name, str(max_value), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             error_strings, optionals, should_succeed)
+                             settings, optionals, should_succeed)
                 l2 = line.replace(var_name, str(max_value + 1), 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             error_strings, optionals, False)
+                             settings, optionals, False)
         elif var_name[1:] in enum_dict:
             for enum in enum_dict[var_name[1:]]:
                 l2 = line.replace(var_name, "'" + enum + "'", 1)
                 validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             error_strings, optionals, should_succeed)
+                             settings, optionals, should_succeed)
             l2 = line.replace(var_name, "'not-existet-enum'", 1)
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         error_strings, optionals, False)
+                         settings, optionals, False)
         else:
             sys.stderr.write("Error: variable '{0}' is undefined\n".format(
                              var_name))
             sys.exit(1)
     else:
-        run_command(line, error_strings, should_succeed)
+        run_command(line, settings, should_succeed)
 
 
 def proccess_line(line, cmd_lines, regex_dict, ranges_dict,
@@ -148,7 +148,7 @@ def main():
     print cmd_lines
     for cmd_line in cmd_lines:
         validate_cmd(cmd_line, regex_dict, ranges_dict, enum_dict,
-                     options.error_string, [], True)
+                     options, [], True)
 
 
 if __name__ == "__main__":
