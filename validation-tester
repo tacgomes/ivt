@@ -32,6 +32,7 @@ def run_command(cmd, error_strings, should_succeed):
 
 def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
                  error_strings, should_succeed):
+    key_value_match=re.search('(-{1,2}\w+)=(\$\w+)' ,line)
     # Test whether it is an optional parameter
     match = re.search(r'\[(.*?\$\w+.*?)\]',line)
     if match:
@@ -41,8 +42,11 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
         l2 = line.replace(match.group(0), match.group(1), 1)
         validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
             error_strings, should_succeed)
-    elif re.search('\$\w+',line):
-        var_name=re.search('\$\w+',line).group(0)
+    elif key_value_match:
+        var_name=key_value_match.group(2)
+        l2 = line.replace(key_value_match.group(), "", 1)
+        validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
+            error_strings, False)
         if var_name[1:] in regex_dict:
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
