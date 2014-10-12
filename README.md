@@ -43,5 +43,5 @@ on the command's standard error for the given string.
 
 Caveats
 -------
-Optional arguments and multiple short options without arguments (e.g. -abc) are
-not supported.
+Optional arguments (an argument can be or not given for some option) and
+multiple short options without arguments (e.g. -abc) are not supported.
