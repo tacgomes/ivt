@@ -46,7 +46,6 @@ def main():
         else:
             raise_missing_option('second')
         if options.timezone is not None:
-            print "Boo"
             if not re.match('\w+$', options.timezone):
                 raise_invalid_value('timezone', options.timezone)
     elif subcommand == 'add-user':
