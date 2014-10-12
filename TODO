@@ -5,4 +5,3 @@ TODO List
 * Improve order in which the commads run 
 * Add support for tests with nested optional parameters
 * Add support for mutual exclusive parameters
-* Document that we are trying to maitain compatiblility with Python 2.6
