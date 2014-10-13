@@ -5,6 +5,7 @@ import re
 import subprocess
 import shlex
 import argparse
+import locale
 
 
 def run_command(cmd, ns, should_succeed):
@@ -13,6 +14,7 @@ def run_command(cmd, ns, should_succeed):
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
     outdata, errdata = process.communicate()
+    encoding = locale.getdefaultlocale()[1]
     test_failed = False
     if should_succeed == True and process.returncode != 0:
         test_failed = True
@@ -21,7 +23,7 @@ def run_command(cmd, ns, should_succeed):
             test_failed = True
         if ns.error_string:
             for es in ns.error_string:
-                 if es in errdata:
+                 if es in errdata.decode(encoding):
                      break
             else:
                 test_failed = True
