@@ -4,14 +4,18 @@ import sys
 import re
 import argparse
 
+
 def raise_invalid_value(option, value):
     sys.stderr.write("Error: invalid value '{}' for '{}'\n".format(
                      value, option))
     sys.exit(1)
 
+
 def raise_missing_option(option):
-    sys.stderr.write("Error: option '{}' was not given\n".format(option))
+    sys.stderr.write("Error: option '{}' was not given\n".format(
+                     option))
     sys.exit(2)
+
 
 def main():
     parser = argparse.ArgumentParser()
