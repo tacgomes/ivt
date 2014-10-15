@@ -37,7 +37,8 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
     optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]',line)
     key_value_match=re.search('(-{1,2}\w+)=(\$\w+)', line)
     if optional_param_match:
-        aux_match=re.search('(\w+)=(\$\w+)', optional_param_match.group(1))
+        aux_match=re.search('(\w+)=(\$\w+)', optional_param_match
+                            .group(1))
         optional_params.append(aux_match.group(1))
         # Validate command without the optional setting
         l2 = line.replace(optional_param_match.group(0), "", 1)
@@ -98,8 +99,8 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
             validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
                          ns, optional_params, False)
         else:
-            sys.stderr.write("Error: variable '{}' is undefined\n".format(
-                             var_name))
+            sys.stderr.write("Error: variable '{}' is undefined\n"
+                             .format(var_name))
             sys.exit(1)
     else:
         run_command(line, ns, should_succeed)
@@ -136,8 +137,8 @@ def proccess_line(line, cmd_lines, regex_dict, ranges_dict,
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--error-string', action="append", default=[],
-                      help="Error string to match")
+    parser.add_argument('-s', '--error-string', action="append",
+                        default=[], help="Error string to match")
     parser.add_argument('files', nargs='+', help="List of spec files")
     namespace = parser.parse_args()
 
