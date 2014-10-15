@@ -15,22 +15,33 @@ def raise_missing_option(option):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('subcommand')
-    parser.add_argument('--hour', action="store", type=int)
-    parser.add_argument('--minute', action="store", type=int)
-    parser.add_argument('--second', action="store", type=int)
-    parser.add_argument('--timezone', action="store")
-    parser.add_argument('--username', action="store")
-    parser.add_argument('-v', '--verbosity', action="store")
+    subparsers = parser.add_subparsers(dest="subcommand")
+    subparsers.required = True
+
+    show_log_parser = subparsers.add_parser('show-log')
+    show_log_parser.add_argument('-v', '--verbosity', action="store",
+                                 choices=['info', 'warn', 'error'])
+
+    add_user_parser = subparsers.add_parser('add-user')
+    add_user_parser.add_argument('--username', action="store",
+                                 required=True)
+
+    set_time_parser = subparsers.add_parser('set-time')
+    set_time_parser.add_argument('--hour', action="store",
+                                 required=True, type=int)
+    set_time_parser.add_argument('--minute', action="store",
+                                 required=True, type=int)
+    set_time_parser.add_argument('--second', action="store",
+                                 required=True, type=int)
+    set_time_parser.add_argument('--timezone', action="store")
+
+    help_parser = subparsers.add_parser('help')
+
     namespace = parser.parse_args()
 
-    subcommand=namespace.subcommand
-    if subcommand == 'show-log':
+    if namespace.subcommand == 'show-log':
          pass
-         if namespace.verbosity:
-             if namespace.verbosity not in ['info','warn','error']:
-                 raise_invalid_value('verbosity', namespace.verbosity)
-    elif subcommand == 'set-time':
+    elif namespace.subcommand == 'set-time':
         if namespace.hour:
             if namespace.hour < 0 or namespace.hour > 24:
                 raise_invalid_value('hour', namespace.hour)
@@ -49,13 +60,13 @@ def main():
         if namespace.timezone is not None:
             if not re.match('\w+$', namespace.timezone):
                 raise_invalid_value('timezone', namespace.timezone)
-    elif subcommand == 'add-user':
+    elif namespace.subcommand == 'add-user':
         if namespace.username is not None:
             if not re.match('[a-z_][a-z0-9_]+$', namespace.username):
                 raise_invalid_value('username', namespace.username)
         else:
             raise_missing_option('username')
-    elif subcommand == 'help':
+    elif namespace.subcommand == 'help':
          pass
     else:
         sys.stderr.write("Error: invalid value\n")
