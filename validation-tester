@@ -16,9 +16,9 @@ def run_command(cmd, ns, should_succeed):
     outdata, errdata = process.communicate()
     encoding = locale.getdefaultlocale()[1]
     test_failed = False
-    if should_succeed == True and process.returncode != 0:
+    if should_succeed and process.returncode != 0:
         test_failed = True
-    if should_succeed == False:
+    if not should_succeed:
         if process.returncode == 0:
             test_failed = True
         if ns.error_string:
