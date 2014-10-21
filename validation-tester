@@ -24,7 +24,9 @@ class VarDict(dict):
 
 
 def run_command(cmd, ns, should_succeed):
-    print ("Running", cmd, should_succeed)
+    debug_str = ' '.join(["Running", cmd, str(should_succeed)])
+    if ns.verbose:
+        print (debug_str)
     process = subprocess.Popen(shlex.split(cmd),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
@@ -43,7 +45,10 @@ def run_command(cmd, ns, should_succeed):
             else:
                 test_failed = True
     if test_failed:
-        sys.stderr.write("    Failed.\n")
+        if not ns.quiet:
+            if not ns.verbose:
+                print (debug_str)
+            sys.stderr.write("    Failed.\n")
         sys.exit(1)
 
 
@@ -145,6 +150,11 @@ def main():
     parser.add_argument('-s', '--error-string', action="append",
                         default=[], help="Error string to match")
     parser.add_argument('files', nargs='+', help="List of spec files")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--quiet', action='store_true',
+                       help="Don't show any output")
+    group.add_argument('--verbose', action='store_true',
+                       help="Activate verbose output")
     namespace = parser.parse_args()
 
     if not len(namespace.files):
@@ -155,8 +165,11 @@ def main():
         with open(filename, 'r') as f:
             for line in f.read().splitlines():
                 proccess_line(line, cmd_lines, var_dict)
-    print (var_dict)
-    print (cmd_lines)
+
+    if namespace.verbose:
+        print (var_dict)
+        print (cmd_lines)
+
     for cmd_line in cmd_lines:
         validate_cmd(cmd_line, var_dict, namespace, [], True)
 
