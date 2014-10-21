@@ -148,13 +148,13 @@ def proccess_line(line, cmd_lines, var_dict):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--error-string', action="append",
-                        default=[], help="Error string to match")
-    parser.add_argument('files', nargs='+', help="List of spec files")
+                        default=[], help="error string to match")
+    parser.add_argument('files', nargs='+', help="list of spec files")
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--quiet', action='store_true',
-                       help="Don't show any output")
+                       help="don't show any output")
     group.add_argument('--verbose', action='store_true',
-                       help="Activate verbose output")
+                       help="activate verbose output")
     namespace = parser.parse_args()
 
     if not len(namespace.files):
