@@ -6,6 +6,7 @@ import subprocess
 import shlex
 import argparse
 import locale
+import pprint
 
 
 class VarDict(dict):
@@ -167,8 +168,10 @@ def main():
                 proccess_line(line, cmd_lines, var_dict)
 
     if namespace.verbose:
-        print (var_dict)
-        print (cmd_lines)
+        print ("Variables:")
+        pprint.pprint(var_dict)
+        print ("Commands:")
+        pprint.pprint(cmd_lines)
 
     for cmd_line in cmd_lines:
         validate_cmd(cmd_line, var_dict, namespace, [], True)
