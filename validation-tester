@@ -69,7 +69,7 @@ def expand_regex(var_name, line, var_dict, ns, optional_params,
 
 def expand_range(var_name, line, var_dict, ns, optional_params,
                  should_succeed):
-    (min_value, max_value) = var_dict[var_name[1:]]
+    min_value, max_value = var_dict[var_name[1:]]
     if min_value:
         l2 = line.replace(var_name, str(min_value), 1)
         expand_cmd(l2, var_dict, ns, optional_params,
