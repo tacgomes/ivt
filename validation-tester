@@ -8,6 +8,21 @@ import argparse
 import locale
 
 
+class VarDict(dict):
+
+     def __init__(self, *arg, **kw):
+        super(VarDict, self).__init__(*arg, **kw)
+
+     def is_regex(self, k):
+         return isinstance(self.get(k), str)
+
+     def is_range(self, k):
+         return isinstance(self.get(k), tuple)
+
+     def is_enum(self, k):
+         return isinstance(self.get(k), list)
+
+
 def run_command(cmd, ns, should_succeed):
     print ("Running", cmd, should_succeed)
     process = subprocess.Popen(shlex.split(cmd),
@@ -32,8 +47,7 @@ def run_command(cmd, ns, should_succeed):
         sys.exit(1)
 
 
-def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
-                 ns, optional_params, should_succeed):
+def validate_cmd(line, var_dict, ns, optional_params, should_succeed):
     optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]',line)
     key_value_match=re.search('(-{1,2}\w+)=(\$\w+)', line)
     if optional_param_match:
@@ -42,62 +56,54 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
         optional_params.append(aux_match.group(1))
         # Validate command without the optional setting
         l2 = line.replace(optional_param_match.group(0), "", 1)
-        validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            ns, optional_params, should_succeed)
+        validate_cmd(l2, var_dict, ns, optional_params, should_succeed)
         # Validate command with the optional setting
         l2 = line.replace(optional_param_match.group(0),
                           optional_param_match.group(1), 1)
-        validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-            ns, optional_params, should_succeed)
+        validate_cmd(l2, var_dict, ns, optional_params, should_succeed)
     elif key_value_match:
         var_name=key_value_match.group(2)
         if key_value_match.group(1).lstrip('-') not in optional_params:
             l2 = line.replace(key_value_match.group(), "", 1)
-            validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         ns, optional_params, False)
+            validate_cmd(l2, var_dict, ns, optional_params, False)
             l2 = line.replace('=' + key_value_match.group(2), "", 1)
-            validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         ns, optional_params, False)
+            validate_cmd(l2, var_dict, ns, optional_params, False)
         # Replace the equals sign by a space, as it will work for both
         # short and GNU long options
         line = line.replace(key_value_match.group(0),
                             ' '.join(key_value_match.groups()), 1)
-        if var_name[1:] in regex_dict:
+        if var_dict.is_regex(var_name[1:]):
             test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
             for ts in test_strings:
                 l2 = line.replace(var_name, "'" + str(ts) + "'", 1)
-                regex=regex_dict[var_name[1:]]
+                regex=var_dict[var_name[1:]]
                 matches2=re.search(regex,str(ts))
                 if matches2:
-                    validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 ns, optional_params, should_succeed)
+                    validate_cmd(l2, var_dict, ns, optional_params,
+                                 should_succeed)
                 else:
-                    validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                                 ns, optional_params, False)
-        elif var_name[1:] in ranges_dict:
-            (min_value, max_value) = ranges_dict[var_name[1:]]
+                    validate_cmd(l2, var_dict, ns, optional_params, False)
+        elif var_dict.is_range(var_name[1:]):
+            (min_value, max_value) = var_dict[var_name[1:]]
             if min_value:
                 l2 = line.replace(var_name, str(min_value), 1)
-                validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             ns, optional_params, should_succeed)
+                validate_cmd(l2, var_dict, ns, optional_params,
+                             should_succeed)
                 l2 = line.replace(var_name, str(min_value - 1), 1)
-                validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             ns, optional_params, False)
+                validate_cmd(l2, var_dict, ns, optional_params, False)
             if max_value:
                 l2 = line.replace(var_name, str(max_value), 1)
-                validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             ns, optional_params, should_succeed)
+                validate_cmd(l2, var_dict, ns, optional_params,
+                             should_succeed)
                 l2 = line.replace(var_name, str(max_value + 1), 1)
-                validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             ns, optional_params, False)
-        elif var_name[1:] in enum_dict:
-            for enum in enum_dict[var_name[1:]]:
+                validate_cmd(l2, var_dict, ns, optional_params, False)
+        elif var_dict.is_enum(var_name[1:]):
+            for enum in var_dict[var_name[1:]]:
                 l2 = line.replace(var_name, "'" + enum + "'", 1)
-                validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                             ns, optional_params, should_succeed)
+                validate_cmd(l2, var_dict, ns, optional_params,
+                             should_succeed)
             l2 = line.replace(var_name, "'not-existet-enum'", 1)
-            validate_cmd(l2, regex_dict, ranges_dict, enum_dict,
-                         ns, optional_params, False)
+            validate_cmd(l2, var_dict, ns, optional_params, False)
         else:
             sys.stderr.write("Error: variable '{}' is undefined\n"
                              .format(var_name))
@@ -106,11 +112,10 @@ def validate_cmd(line, regex_dict, ranges_dict, enum_dict,
         run_command(line, ns, should_succeed)
 
 
-def proccess_line(line, cmd_lines, regex_dict, ranges_dict,
-                  enum_dict):
+def proccess_line(line, cmd_lines, var_dict):
     if line.startswith('regex'):
         match = re.match("regex\W*(.+)=(.+)", line)
-        regex_dict[match.group(1)] = '^' + match.group(2) + '$'
+        var_dict[match.group(1)] = '^' + match.group(2) + '$'
     elif line.startswith('range'):
         match = re.match("range\W*(.+)=(.+)", line)
         var_name = match.group(1)
@@ -122,12 +127,12 @@ def proccess_line(line, cmd_lines, regex_dict, ranges_dict,
             lower_limit = int(match.group(1))
         if match.group(2):
             upper_limit = int(match.group(2))
-        ranges_dict[var_name] = (lower_limit, upper_limit)
+        var_dict[var_name] = (lower_limit, upper_limit)
     elif line.startswith('enum'):
         match = re.match("enum\W*(.+)=(.+)", line)
         var_name = match.group(1)
         enum_values=match.group(2).split(',')
-        enum_dict[var_name] = enum_values
+        var_dict[var_name] = enum_values
         pass
     elif not line.strip() or line.startswith('#'):
         pass
@@ -145,21 +150,15 @@ def main():
     if not len(namespace.files):
         parser.error("wrong number of arguments")
     cmd_lines = []
-    regex_dict = {}
-    ranges_dict = {}
-    enum_dict = {}
+    var_dict = VarDict()
     for filename in namespace.files:
         with open(filename, 'r') as f:
             for line in f.read().splitlines():
-                proccess_line(line, cmd_lines, regex_dict, ranges_dict,
-                              enum_dict)
-    print (regex_dict)
-    print (ranges_dict)
-    print (enum_dict)
+                proccess_line(line, cmd_lines, var_dict)
+    print (var_dict)
     print (cmd_lines)
     for cmd_line in cmd_lines:
-        validate_cmd(cmd_line, regex_dict, ranges_dict, enum_dict,
-                     namespace, [], True)
+        validate_cmd(cmd_line, var_dict, namespace, [], True)
 
 
 if __name__ == "__main__":
