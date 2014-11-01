@@ -7,7 +7,6 @@ import shlex
 import argparse
 import locale
 import pprint
-import numbers
 
 
 class VarDict(dict):
@@ -62,7 +61,7 @@ def expand_regex(var_name, line, var_dict, ns, opt_params,
                  should_succeed):
     test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
     for ts in test_strings:
-        if isinstance(ts, numbers.Real):
+        if isinstance(ts, (int, float)):
             l2 = line.replace(var_name, str(ts), 1)
         else:
             l2 = line.replace(var_name, shell_quote(ts), 1)
