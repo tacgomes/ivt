@@ -7,6 +7,8 @@ import shlex
 import argparse
 import locale
 import pprint
+import string
+import itertools
 
 
 class VarDict(dict):
@@ -59,7 +61,29 @@ def run_command(cmd, ns, should_succeed):
 
 def expand_regex(var_name, line, var_dict, ns, opt_params,
                  should_succeed):
-    test_strings = [-1, 0, 1, 1000, 1.0, "", "foo", "bar qux"]
+    whitespace = list(string.whitespace)
+    punctuation = ['.', '_', '-', '&']
+    digits = ['0', '1']
+    symbols = whitespace + punctuation + digits
+    lengths = [1, 4, 8, 16, 32, 2048]
+    numbers = [1, 1.1, 10, 100, 1000, 10**10, 10**50]
+    # Empty string or with whitespace only
+    test_strings = list(string.whitespace)
+    # With whitespace, punctuation or a digit in the beginning
+    test_strings += [s + "teststring" for s in symbols]
+    # With whitespace, punctuation or a digit in the middle
+    test_strings += ["test" + s + "string" for s in symbols]
+    # Different lengths
+    test_strings += itertools.chain.from_iterable(
+        ("x" * (n - 1), "x" * n) for n in lengths)
+    # Numbers
+    test_strings += itertools.chain.from_iterable(
+        (i, -i) for i in numbers)
+    test_strings.append(0)
+    # Lowercase/uppercase combinations
+    test_strings += ["teststring", "Teststring", "TESTSTRING"]
+    # Non-printable characters
+    test_strings.append(r'test\0string')
     for ts in test_strings:
         if isinstance(ts, (int, float)):
             l2 = line.replace(var_name, str(ts), 1)
