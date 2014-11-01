@@ -15,3 +15,4 @@ TODO
 * Support mutual exclusive options (only one can be given):
 
   command --foo | --bar
+* Support float ranges
