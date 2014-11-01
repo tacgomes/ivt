@@ -26,6 +26,33 @@ class VarDict(dict):
          return isinstance(self.get(k), list)
 
 
+def get_test_strings():
+    whitespace = list(string.whitespace)
+    punctuation = ['.', '_', '-', '&']
+    digits = ['0', '1']
+    symbols = whitespace + punctuation + digits
+    lengths = [1, 4, 8, 16, 32, 2048]
+    numbers = [1, 1.1, 10, 100, 1000, 10**10, 10**50]
+    # Empty string or with whitespace only
+    test_strings = list(string.whitespace)
+    # With whitespace, punctuation or a digit in the beginning
+    test_strings += [s + "teststring" for s in symbols]
+    # With whitespace, punctuation or a digit in the middle
+    test_strings += ["test" + s + "string" for s in symbols]
+    # Different lengths
+    test_strings += itertools.chain.from_iterable(
+        ("x" * (n - 1), "x" * n) for n in lengths)
+    # Numbers
+    test_strings += itertools.chain.from_iterable(
+        (i, -i) for i in numbers)
+    test_strings.append(0)
+    # Lowercase/uppercase combinations
+    test_strings += ["teststring", "Teststring", "TESTSTRING"]
+    # Non-printable characters
+    test_strings.append(r'test\0string')
+    return test_strings
+
+
 def shell_quote(argument):
     return "'{}'".format(argument.replace( "'", r"'\''"))
 
@@ -61,30 +88,7 @@ def run_command(cmd, ns, should_succeed):
 
 def expand_regex(var_name, line, var_dict, ns, opt_params,
                  should_succeed):
-    whitespace = list(string.whitespace)
-    punctuation = ['.', '_', '-', '&']
-    digits = ['0', '1']
-    symbols = whitespace + punctuation + digits
-    lengths = [1, 4, 8, 16, 32, 2048]
-    numbers = [1, 1.1, 10, 100, 1000, 10**10, 10**50]
-    # Empty string or with whitespace only
-    test_strings = list(string.whitespace)
-    # With whitespace, punctuation or a digit in the beginning
-    test_strings += [s + "teststring" for s in symbols]
-    # With whitespace, punctuation or a digit in the middle
-    test_strings += ["test" + s + "string" for s in symbols]
-    # Different lengths
-    test_strings += itertools.chain.from_iterable(
-        ("x" * (n - 1), "x" * n) for n in lengths)
-    # Numbers
-    test_strings += itertools.chain.from_iterable(
-        (i, -i) for i in numbers)
-    test_strings.append(0)
-    # Lowercase/uppercase combinations
-    test_strings += ["teststring", "Teststring", "TESTSTRING"]
-    # Non-printable characters
-    test_strings.append(r'test\0string')
-    for ts in test_strings:
+    for ts in ns.test_string:
         if isinstance(ts, (int, float)):
             l2 = line.replace(var_name, str(ts), 1)
         else:
@@ -195,6 +199,9 @@ def main():
     parser.add_argument('-s', '--error-string', action="append",
                         default=[], help="error string to match")
     parser.add_argument('files', nargs='+', help="list of spec files")
+    parser.add_argument('-t', '--test-string', action="append",
+                        default=get_test_strings(),
+                        help="extra test strings")
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--quiet', action='store_true',
                        help="don't show any output")
