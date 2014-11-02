@@ -200,6 +200,11 @@ def parse_files(files):
     return cmd_lines, var_dict
 
 
+def run_input_validation_tester(cmd_lines, var_dict, namespace):
+    for cmd_line in cmd_lines:
+        expand_cmd(cmd_line, var_dict, namespace, [], True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--error-string', action="append",
@@ -226,8 +231,7 @@ def main():
         print ("Commands:")
         pprint.pprint(cmd_lines)
 
-    for cmd_line in cmd_lines:
-        expand_cmd(cmd_line, var_dict, namespace, [], True)
+    run_input_validation_tester(cmd_lines, var_dict, namespace)
 
 
 if __name__ == "__main__":
