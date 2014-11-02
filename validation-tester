@@ -166,23 +166,38 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
         run_command(line, ns, should_succeed)
 
 
-def process_line(line, cmd_lines, var_dict):
+def process_line(line, cmd_lines, var_dict, regex_cre, range_cre,
+                 enum_cre):
     if line.startswith('regex'):
-        m = re.match(r"regex\s+(\w+)\s*=\s*(.+?)\s*$", line)
+        m = regex_cre.match(line)
         var_dict[m.group(1)] = '^' + m.group(2) + '$'
     elif line.startswith('range'):
-        m = re.match(r"range\s+(\w+)\s*=\s*(\d*)\s*\.\.\s*(\d*)", line)
+        m = range_cre.match(line)
         lower_limit = int(m.group(2)) if m.group(2) else None
         upper_limit = int(m.group(3)) if m.group(3) else None
         var_dict[m.group(1)] = lower_limit, upper_limit
     elif line.startswith('enum'):
-        m = re.match(r"enum\s+(\w+)\s*=\s*(.+)", line)
+        m = enum_cre.match(line)
         var_dict[m.group(1)] = [s.strip()
                                 for s in m.group(2).split(',')]
     elif not line.strip() or line.startswith('#'):
         pass
     else:
         cmd_lines.append(line)
+
+
+def parse_files(files):
+    cmd_lines = []
+    var_dict = VarDict()
+    regex_cre = re.compile(r"regex\s+(\w+)\s*=\s*(.+?)\s*$")
+    range_cre = re.compile(r"range\s+(\w+)\s*=\s*(\d*)\s*\.\.\s*(\d*)")
+    enum_cre = re.compile(r"enum\s+(\w+)\s*=\s*(.+)")
+    for filename in files:
+        with open(filename, 'r') as f:
+            for line in f.read().splitlines():
+                process_line(line, cmd_lines, var_dict,
+                             regex_cre, range_cre, enum_cre)
+    return cmd_lines, var_dict
 
 
 def main():
@@ -202,12 +217,8 @@ def main():
 
     if not len(namespace.files):
         parser.error("wrong number of arguments")
-    cmd_lines = []
-    var_dict = VarDict()
-    for filename in namespace.files:
-        with open(filename, 'r') as f:
-            for line in f.read().splitlines():
-                process_line(line, cmd_lines, var_dict)
+
+    cmd_lines, var_dict = parse_files(namespace.files)
 
     if namespace.verbose:
         print ("Variables:")
