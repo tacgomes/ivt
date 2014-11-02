@@ -166,8 +166,8 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
         run_command(line, ns, should_succeed)
 
 
-def process_line(line, cmd_lines, var_dict, regex_cre, range_cre,
-                 enum_cre):
+def parse_line(line, cmd_lines, var_dict, regex_cre, range_cre,
+               enum_cre):
     if line.startswith('regex'):
         m = regex_cre.match(line)
         var_dict[m.group(1)] = '^' + m.group(2) + '$'
@@ -195,8 +195,8 @@ def parse_files(files):
     for filename in files:
         with open(filename, 'r') as f:
             for line in f.read().splitlines():
-                process_line(line, cmd_lines, var_dict,
-                             regex_cre, range_cre, enum_cre)
+                parse_line(line, cmd_lines, var_dict,
+                           regex_cre, range_cre, enum_cre)
     return cmd_lines, var_dict
 
 
