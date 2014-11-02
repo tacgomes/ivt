@@ -54,7 +54,7 @@ def get_test_strings():
 
 
 def shell_quote(argument):
-    return "'{}'".format(argument.replace( "'", r"'\''"))
+    return "'{}'".format(argument.replace("'", r"'\''"))
 
 
 def run_command(cmd, ns, should_succeed):
