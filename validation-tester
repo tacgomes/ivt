@@ -168,26 +168,17 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
 
 def proccess_line(line, cmd_lines, var_dict):
     if line.startswith('regex'):
-        match = re.match("regex\W*(.+)=(.+)", line)
-        var_dict[match.group(1)] = '^' + match.group(2) + '$'
+        m = re.match(r"regex\s+(\w+)\s*=\s*(.+?)\s*$", line)
+        var_dict[m.group(1)] = '^' + m.group(2) + '$'
     elif line.startswith('range'):
-        match = re.match("range\W*(.+)=(.+)", line)
-        var_name = match.group(1)
-        ranges = match.group(2)
-        match = re.match("(\d*)\.\.(\d*)", ranges)
-        lower_limit = None
-        upper_limit = None
-        if match.group(1):
-            lower_limit = int(match.group(1))
-        if match.group(2):
-            upper_limit = int(match.group(2))
-        var_dict[var_name] = (lower_limit, upper_limit)
+        m = re.match(r"range\s+(\w+)\s*=\s*(\d*)\s*\.\.\s*(\d*)", line)
+        lower_limit = int(m.group(2)) if m.group(2) else None
+        upper_limit = int(m.group(3)) if m.group(3) else None
+        var_dict[m.group(1)] = lower_limit, upper_limit
     elif line.startswith('enum'):
-        match = re.match("enum\W*(.+)=(.+)", line)
-        var_name = match.group(1)
-        enum_values=match.group(2).split(',')
-        var_dict[var_name] = enum_values
-        pass
+        m = re.match(r"enum\s+(\w+)\s*=\s*(.+)", line)
+        var_dict[m.group(1)] = [s.strip()
+                                for s in m.group(2).split(',')]
     elif not line.strip() or line.startswith('#'):
         pass
     else:
