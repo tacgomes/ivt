@@ -1,9 +1,9 @@
-validation-tester
-=================
+ivt
+===
 
-`validation-tester` it a tool to exercise and test the input validation paths
-for a command line tool which allows to specify options in the conventional
-GNU/POSIX syntax.
+`ivt` it a tool to exercise and test the input validation paths for a command
+line tool which allows to specify options in the conventional GNU/POSIX syntax.
+`ivt` stands for Input Validation Tester.
 
 It requires as input a spec file which defines the options that the command
 line tool supports, their valid combinations, and which are the valid input
@@ -27,12 +27,12 @@ that they can be omitted.
 
 See `example.spec` for an example and further documentation.
 
-`validation-tester` will check that the command will fail if the input value
-does not match the regex, or its lower/higher than the lower/upper limit, or it
-isn't on the list of string constants.  The opposit check will also be
-performed: whether the command succeeds if the input value is valid accordingly
-to the defined variable.  Executing commands with their optional options
-omitted will also be tested.
+`ivt` will check that the command will fail if the input value does not match
+the regex, or its lower/higher than the lower/upper limit, or it isn't on the
+list of string constants.  The opposite check will also be performed: whether
+the command succeeds if the input value is valid accordingly to the defined
+variable.  Executing commands with their optional options omitted will also be
+tested.
 
 The check for whether the input validation succeed or not based is on the
 command exit status. It's possible that the command failed due some other
