@@ -5,13 +5,13 @@ import re
 import argparse
 
 
-def raise_invalid_value(option, value):
+def invalid_value_err(option, value):
     sys.stderr.write("Error: invalid value '{}' for '{}'\n".format(
                      value, option))
     sys.exit(1)
 
 
-def raise_missing_option(option):
+def missing_option_err(option):
     sys.stderr.write("Error: option '{}' was not given\n".format(
                      option))
     sys.exit(2)
@@ -48,28 +48,28 @@ def main():
     elif namespace.subcommand == 'set-time':
         if namespace.hour:
             if namespace.hour < 0 or namespace.hour > 24:
-                raise_invalid_value('hour', namespace.hour)
+                invalid_value_err('hour', namespace.hour)
         else:
-            raise_missing_option('hour')
+            missing_option_err('hour')
         if namespace.minute:
             if namespace.minute < 0 or namespace.minute > 60:
-                raise_invalid_value('minute', namespace.minute)
+                invalid_value_err('minute', namespace.minute)
         else:
-            raise_missing_option('minute')
+            missing_option_err('minute')
         if namespace.second:
             if namespace.second < 0 or namespace.second > 60:
-                raise_invalid_value('second', namespace.second)
+                invalid_value_err('second', namespace.second)
         else:
-            raise_missing_option('second')
+            missing_option_err('second')
         if namespace.timezone is not None:
             if not re.match('\w+$', namespace.timezone):
-                raise_invalid_value('timezone', namespace.timezone)
+                invalid_value_err('timezone', namespace.timezone)
     elif namespace.subcommand == 'add-user':
         if namespace.username is not None:
             if not re.match('[a-z_][a-z0-9_]+$', namespace.username):
-                raise_invalid_value('username', namespace.username)
+                invalid_value_err('username', namespace.username)
         else:
-            raise_missing_option('username')
+            missing_option_err('username')
     elif namespace.subcommand == 'help':
          pass
     else:
