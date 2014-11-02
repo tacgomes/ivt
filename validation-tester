@@ -180,7 +180,7 @@ def parse_line(line, cmd_lines, var_dict, regex_cre, range_cre,
         m = enum_cre.match(line)
         var_dict[m.group(1)] = [s.strip()
                                 for s in m.group(2).split(',')]
-    elif not line.strip() or line.startswith('#'):
+    elif line.startswith('#') or not line.strip():
         pass
     else:
         cmd_lines.append(line)
