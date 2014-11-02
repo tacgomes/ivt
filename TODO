@@ -1,7 +1,6 @@
 TODO
 ====
 * Clean code base
-* Immprove error handling
 * Improve order in which the commands run
 * Support nested not-required options:
 

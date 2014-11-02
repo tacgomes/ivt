@@ -166,18 +166,30 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
         run_command(line, ns, should_succeed)
 
 
+def invalid_variable_declaration_err(line):
+    sys.stderr.write("Invalid syntax in variable declaration: " +
+                     line + "\n")
+    sys.exit(1)
+
+
 def parse_line(line, cmd_lines, var_dict, regex_cre, range_cre,
                enum_cre):
     if line.startswith('regex'):
         m = regex_cre.match(line)
+        if not m:
+            invalid_variable_declaration_err(line)
         var_dict[m.group(1)] = '^' + m.group(2) + '$'
     elif line.startswith('range'):
         m = range_cre.match(line)
+        if not m or (not m.group(2) and not m.group(3)):
+            invalid_variable_declaration_err(line)
         lower_limit = int(m.group(2)) if m.group(2) else None
         upper_limit = int(m.group(3)) if m.group(3) else None
         var_dict[m.group(1)] = lower_limit, upper_limit
     elif line.startswith('enum'):
         m = enum_cre.match(line)
+        if not m:
+            invalid_variable_declaration_err(line)
         var_dict[m.group(1)] = [s.strip()
                                 for s in m.group(2).split(',')]
     elif line.startswith('#') or not line.strip():
