@@ -192,8 +192,8 @@ def parse_files(files):
     regex_cre = re.compile(r"regex\s+(\w+)\s*=\s*(.+?)\s*$")
     range_cre = re.compile(r"range\s+(\w+)\s*=\s*(\d*)\s*\.\.\s*(\d*)")
     enum_cre = re.compile(r"enum\s+(\w+)\s*=\s*(.+)")
-    for filename in files:
-        with open(filename, 'r') as f:
+    for filepath in files:
+        with open(filepath, 'r') as f:
             for line in f.read().splitlines():
                 parse_line(line, cmd_lines, var_dict,
                            regex_cre, range_cre, enum_cre)
