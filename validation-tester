@@ -166,7 +166,7 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
         run_command(line, ns, should_succeed)
 
 
-def proccess_line(line, cmd_lines, var_dict):
+def process_line(line, cmd_lines, var_dict):
     if line.startswith('regex'):
         m = re.match(r"regex\s+(\w+)\s*=\s*(.+?)\s*$", line)
         var_dict[m.group(1)] = '^' + m.group(2) + '$'
@@ -207,7 +207,7 @@ def main():
     for filename in namespace.files:
         with open(filename, 'r') as f:
             for line in f.read().splitlines():
-                proccess_line(line, cmd_lines, var_dict)
+                process_line(line, cmd_lines, var_dict)
 
     if namespace.verbose:
         print ("Variables:")
