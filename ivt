@@ -131,10 +131,10 @@ def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
                               .group(1))
         if aux_match:
             opt_params.append(aux_match.group(1))
-        # Validate command without the optional setting
+        # Validate command without the argument set
         l2 = line.replace(optional_param_match.group(0), "", 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-        # Validate command with the optional setting
+        # Validate command with the argument set
         l2 = line.replace(optional_param_match.group(0),
                           optional_param_match.group(1), 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
