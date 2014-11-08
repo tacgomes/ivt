@@ -124,12 +124,11 @@ def expand_enum(var_name, line, var_dict, ns, opt_params,
     expand_cmd(l2, var_dict, ns, opt_params, False)
 
 
-def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
-    optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]',line)
-    key_value_match=re.search('(-{1,2}\w+)=(\$\w+)', line)
+def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
+    optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]', line)
     if optional_param_match:
-        aux_match=re.search('(\w+)=(\$\w+)', optional_param_match
-                            .group(1))
+        aux_match = re.search('(\w+)=(\$\w+)', optional_param_match
+                              .group(1))
         opt_params.append(aux_match.group(1))
         # Validate command without the optional setting
         l2 = line.replace(optional_param_match.group(0), "", 1)
@@ -138,8 +137,13 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
         l2 = line.replace(optional_param_match.group(0),
                           optional_param_match.group(1), 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-    elif key_value_match:
-        var_name=key_value_match.group(2)
+    return optional_param_match
+
+
+def expand_required_param(line, var_dict, ns, opt_params, should_succeed):
+    key_value_match = re.search('(-{1,2}\w+)=(\$\w+)', line)
+    if key_value_match:
+        var_name = key_value_match.group(2)
         if key_value_match.group(1).lstrip('-') not in opt_params:
             l2 = line.replace(key_value_match.group(), "", 1)
             expand_cmd(l2, var_dict, ns, opt_params, False)
@@ -162,6 +166,16 @@ def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
             sys.stderr.write("Error: variable '{}' is undefined\n"
                              .format(var_name))
             sys.exit(1)
+    return key_value_match
+
+
+def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
+    if expand_optional_param(line, var_dict, ns, opt_params,
+                             should_succeed):
+        pass
+    elif expand_required_param(line, var_dict, ns, opt_params,
+                               should_succeed):
+        pass
     else:
         run_command(line, ns, should_succeed)
 
