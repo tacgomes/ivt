@@ -125,11 +125,12 @@ def expand_enum(var_name, line, var_dict, ns, opt_params,
 
 
 def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
-    optional_param_match = re.search(r'\[(.*?\$\w+.*?)\]', line)
+    optional_param_match = re.search(r'\[\s*(.+?)\s*\]', line)
     if optional_param_match:
         aux_match = re.search('(\w+)=(\$\w+)', optional_param_match
                               .group(1))
-        opt_params.append(aux_match.group(1))
+        if aux_match:
+            opt_params.append(aux_match.group(1))
         # Validate command without the optional setting
         l2 = line.replace(optional_param_match.group(0), "", 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)

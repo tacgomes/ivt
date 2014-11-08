@@ -25,10 +25,12 @@ def main():
     show_log_parser = subparsers.add_parser('show-log')
     show_log_parser.add_argument('-v', '--verbosity', action="store",
                                  choices=['info', 'warn', 'error'])
+    show_log_parser.add_argument('--tail', action="store_true")
 
     add_user_parser = subparsers.add_parser('add-user')
     add_user_parser.add_argument('--username', action="store",
                                  required=True)
+    add_user_parser.add_argument('--create-home', action="store_true")
 
     set_time_parser = subparsers.add_parser('set-time')
     set_time_parser.add_argument('--hour', action="store",

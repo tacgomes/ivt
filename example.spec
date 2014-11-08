@@ -25,7 +25,7 @@ enum  verbosity=info,warn,error
 # converted to whitespace).  Options defined inside square brackets are not
 # required for some command/subcommand.
 ./example.py help
-./example.py add-user --username=$username
+./example.py add-user --username=$username [ --create-home ]
 ./example.py set-time --hour=$hour --minute=$minsec --second=$minsec [ --timezone=$timezone ]
 ./example.py show-log [ --verbosity=$verbosity ]
-./example.py show-log [ -v=$verbosity ]
+./example.py show-log [ -v=$verbosity ] [--tail]
