@@ -125,35 +125,32 @@ def expand_enum(var_name, line, var_dict, ns, opt_params,
 
 
 def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
-    optional_param_match = re.search(r'\[\s*(.+?)\s*\]', line)
-    if optional_param_match:
-        aux_match = re.search('(\w+)=(\$\w+)', optional_param_match
-                              .group(1))
-        if aux_match:
-            opt_params.append(aux_match.group(1))
+    match = re.search(r'\[\s*(.+?)\s*\]', line)
+    if match:
+        match2 = re.search('(\w+)=(\$\w+)', match.group(1))
+        if match2:
+            opt_params.append(match2.group(1))
         # Validate command without the argument set
-        l2 = line.replace(optional_param_match.group(0), "", 1)
+        l2 = line.replace(match.group(0), "", 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
         # Validate command with the argument set
-        l2 = line.replace(optional_param_match.group(0),
-                          optional_param_match.group(1), 1)
+        l2 = line.replace(match.group(0), match.group(1), 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-    return optional_param_match
+    return match
 
 
 def expand_required_param(line, var_dict, ns, opt_params, should_succeed):
-    key_value_match = re.search('(-{1,2}\w+)=(\$\w+)', line)
-    if key_value_match:
-        var_name = key_value_match.group(2)
-        if key_value_match.group(1).lstrip('-') not in opt_params:
-            l2 = line.replace(key_value_match.group(), "", 1)
+    match = re.search('(-{1,2}\w+)=(\$\w+)', line)
+    if match:
+        var_name = match.group(2)
+        if match.group(1).lstrip('-') not in opt_params:
+            l2 = line.replace(match.group(), "", 1)
             expand_cmd(l2, var_dict, ns, opt_params, False)
-            l2 = line.replace('=' + key_value_match.group(2), "", 1)
+            l2 = line.replace('=' + match.group(2), "", 1)
             expand_cmd(l2, var_dict, ns, opt_params, False)
         # Replace the equals sign by a space, as it will work for both
         # short and GNU long options
-        line = line.replace(key_value_match.group(0),
-                            ' '.join(key_value_match.groups()), 1)
+        line = line.replace(match.group(0), ' '.join(match.groups()), 1)
         if var_dict.is_regex(var_name[1:]):
             expand_regex(var_name, line, var_dict, ns, opt_params,
                          should_succeed)
@@ -167,7 +164,7 @@ def expand_required_param(line, var_dict, ns, opt_params, should_succeed):
             sys.stderr.write("Error: variable '{}' is undefined\n"
                              .format(var_name))
             sys.exit(1)
-    return key_value_match
+    return match
 
 
 def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
@@ -190,28 +187,28 @@ def invalid_variable_declaration_err(line):
 def parse_line(line, cmd_lines, var_dict, regex_cre, range_cre,
                enum_cre):
     if line.startswith('regex'):
-        m = regex_cre.match(line)
-        if not m:
+        match = regex_cre.match(line)
+        if not match:
             invalid_variable_declaration_err(line)
-        regex = m.group(2)
+        regex = match.group(2)
         if not regex.startswith("^"):
             regex = "^" + regex
         if not regex.endswith("$"):
             regex = regex + "$"
-        var_dict[m.group(1)] = regex
+        var_dict[match.group(1)] = regex
     elif line.startswith('range'):
-        m = range_cre.match(line)
-        if not m or (not m.group(2) and not m.group(3)):
+        match = range_cre.match(line)
+        if not match or (not match.group(2) and not match.group(3)):
             invalid_variable_declaration_err(line)
-        lower_limit = int(m.group(2)) if m.group(2) else None
-        upper_limit = int(m.group(3)) if m.group(3) else None
-        var_dict[m.group(1)] = lower_limit, upper_limit
+        lower_limit = int(match.group(2)) if match.group(2) else None
+        upper_limit = int(match.group(3)) if match.group(3) else None
+        var_dict[match.group(1)] = lower_limit, upper_limit
     elif line.startswith('enum'):
-        m = enum_cre.match(line)
-        if not m:
+        match = enum_cre.match(line)
+        if not match:
             invalid_variable_declaration_err(line)
-        var_dict[m.group(1)] = [s.strip()
-                                for s in m.group(2).split(',')]
+        var_dict[match.group(1)] = [s.strip()
+                                    for s in match.group(2).split(',')]
     elif line.startswith('#') or not line.strip():
         pass
     else:
