@@ -240,8 +240,10 @@ def main():
                         default=[], help="error string to match")
     parser.add_argument('files', nargs='+', help="list of spec files")
     parser.add_argument('-t', '--test-string', action="append",
-                        default=get_test_strings(),
                         help="extra test strings")
+    parser.add_argument('--quick-check', action='store_true',
+                        help="Only try the invalid strings given in "
+                             "the command line")
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--quiet', action='store_true',
                        help="don't show any output")
@@ -251,6 +253,15 @@ def main():
 
     if not len(namespace.files):
         parser.error("wrong number of arguments")
+
+    if namespace.test_string:
+        if not namespace.quick_check:
+            namespace.test_string += get_test_strings()
+    else:
+        if namespace.quick_check:
+            parser.error("'--quick-check' requires '--test-string'")
+        else:
+            namespace.test_string = []
 
     cmd_lines, var_dict = parse_files(namespace.files)
 
