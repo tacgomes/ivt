@@ -261,7 +261,7 @@ def main():
         if namespace.quick_check:
             parser.error("'--quick-check' requires '--test-string'")
         else:
-            namespace.test_string = []
+            namespace.test_string = get_test_strings()
 
     cmd_lines, var_dict = parse_files(namespace.files)
 
