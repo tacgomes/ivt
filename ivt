@@ -142,28 +142,28 @@ def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
 def expand_required_param(line, var_dict, ns, opt_params, should_succeed):
     match = re.search(r'(\s+)(-{1,2}\w+)=(\$\w+)', line)
     if match:
-        if match.group(2) not in opt_params:
-            l2 = line.replace(match.group(), " ", 1)
-            expand_cmd(l2, var_dict, ns, opt_params, False)
-            l2 = line.replace('=' + match.group(3), "", 1)
-            expand_cmd(l2, var_dict, ns, opt_params, False)
         # Replace the equals sign by a space, as it will work for both
         # short and GNU long options
         line = line.replace(match.group(0), ' '.join(match.groups()), 1)
         var_name = match.group(3)
         if var_dict.is_regex(var_name[1:]):
-            expand_regex(var_name, line, var_dict, ns, opt_params,
+            expand_regex(var_name, l2, var_dict, ns, opt_params,
                          should_succeed)
         elif var_dict.is_range(var_name[1:]):
-            expand_range(var_name, line, var_dict, ns, opt_params,
+            expand_range(var_name, l2, var_dict, ns, opt_params,
                          should_succeed)
         elif var_dict.is_enum(var_name[1:]):
-            expand_enum(var_name, line, var_dict, ns, opt_params,
+            expand_enum(var_name, l2, var_dict, ns, opt_params,
                         should_succeed)
         else:
             sys.stderr.write("Error: variable '{}' is undefined\n"
                              .format(var_name))
             sys.exit(1)
+        if match.group(2) not in opt_params:
+            l2 = line.replace('=' + match.group(3), " ", 1)
+            expand_cmd(l2, var_dict, ns, opt_params, False)
+            l2 = line.replace(match.group(), "", 1)
+            expand_cmd(l2, var_dict, ns, opt_params, False)
     return match
 
 

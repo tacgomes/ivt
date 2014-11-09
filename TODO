@@ -1,7 +1,6 @@
 TODO
 ====
 * Clean code base
-* Improve order in which the commands run
 * Support nested not-required options:
 
   command [ --foo=$foo [ --bar=$bar ] ]
