@@ -59,7 +59,9 @@ def shell_quote(argument):
 
 def run_command(cmd, ns, should_succeed):
     cmd = re.sub('\s+', ' ', cmd).strip()
-    debug_str = ' '.join(["Running", cmd, str(should_succeed)])
+    debug_str = "Running " + cmd
+    if should_succeed:
+        debug_str += " (should succeed)"
     if ns.verbose:
         print (debug_str)
     process = subprocess.Popen(shlex.split(cmd),
