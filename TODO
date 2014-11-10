@@ -1,6 +1,5 @@
 TODO
 ====
-* Clean code base
 * Support nested not-required options:
 
   command [ --foo=$foo [ --bar=$bar ] ]
@@ -14,3 +13,4 @@ TODO
 
   command --foo | --bar
 * Support float ranges
+* `ivt` doesn't scale well: reduce the number of recursion calls made
