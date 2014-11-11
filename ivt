@@ -58,7 +58,7 @@ def shell_quote(argument):
 
 
 def run_command(cmd, ns, should_succeed):
-    cmd = re.sub('\s+', ' ', cmd).strip()
+    cmd = re.sub(' +', ' ', cmd).strip()
     debug_str = "Running " + cmd
     if should_succeed:
         debug_str += " (should succeed)"
