@@ -7,7 +7,6 @@ import shlex
 import argparse
 import locale
 import pprint
-import string
 import itertools
 
 
@@ -27,14 +26,14 @@ class VarDict(dict):
 
 
 def get_test_strings():
-    whitespace = list(string.whitespace)
+    whitespace = [' ', '\t', '\n']
     punctuation = ['.', '_', '-', '&']
-    digits = ['0', '1']
+    digits = ['1']
     symbols = whitespace + punctuation + digits
     lengths = [1, 4, 8, 16, 32, 2048]
     numbers = [1, 1.1, 10, 100, 1000, 10**10, 10**50]
     # Empty string or with whitespace only
-    test_strings = list(string.whitespace)
+    test_strings = whitespace
     # With whitespace, punctuation or a digit in the beginning
     test_strings += [s + "teststring" for s in symbols]
     # With whitespace, punctuation or a digit in the middle
