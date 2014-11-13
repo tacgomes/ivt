@@ -122,10 +122,11 @@ def expand_range(var_name, line, var_dict, ns, opt_params,
 def expand_enum(var_name, line, var_dict, ns, opt_params,
                 should_succeed):
     for enum in var_dict[var_name[1:]]:
-        l2 = line.replace(var_name, shell_quote(enum))
+        l2 = line.replace(var_name, shell_quote(enum), 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
     if should_succeed:
-        l2 = line.replace(var_name, "'not-existent-enum'", 1)
+        l2 = line.replace(var_name,
+                          shell_quote("non-existent-enum"), 1)
         expand_cmd(l2, var_dict, ns, opt_params, False)
 
 
