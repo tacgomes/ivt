@@ -129,7 +129,8 @@ def expand_enum(var_name, line, var_dict, ns, opt_params,
         expand_cmd(l2, var_dict, ns, opt_params, False)
 
 
-def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
+def expand_optional_param(line, var_dict, ns, opt_params,
+                          should_succeed):
     match = re.search(r'\[\s*(.+?)\s*\]', line)
     if match:
         match2 = re.search(r'(-{1,2}\w+)=(\$\w+)', match.group(1))
@@ -144,7 +145,8 @@ def expand_optional_param(line, var_dict, ns, opt_params, should_succeed):
     return match
 
 
-def expand_required_param(line, var_dict, ns, opt_params, should_succeed):
+def expand_required_param(line, var_dict, ns, opt_params,
+                          should_succeed):
     match = re.search(r'(\s+)(-{1,2}\w+)=(\$\w+)', line)
     if match:
         # Replace the equals sign by a space, as it will work for both
