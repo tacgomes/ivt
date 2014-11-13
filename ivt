@@ -177,6 +177,9 @@ def expand_required_param(line, var_dict, ns, opt_params,
                              .format(var_name))
             sys.exit(1)
         if match.group(2) not in opt_params:
+            # FIXME This is wrong because e.g. on '--hour --minute 60',
+            # the --hour parameter is not being tested as if no arg was
+            # given, but with a '--minute' arg.
             l2 = line.replace('=' + match.group(3), "", 1)
             expand_cmd(l2, var_dict, ns, opt_params, False)
             l2 = line.replace(match.group(), "", 1)
