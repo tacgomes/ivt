@@ -145,11 +145,11 @@ def expand_optional_param(line, var_dict, ns, opt_params,
         match2 = re.search(r'(-{1,2}\w+)=(\$\w+)', match.group(1))
         if match2:
             opt_params.append(match2.group(1).strip())
-        # Validate command without the argument set
-        l2 = line.replace(match.group(0), "", 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
         # Validate command with the argument set
         l2 = line.replace(match.group(0), match.group(1), 1)
+        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
+        # Validate command without the argument set
+        l2 = line.replace(match.group(0), "", 1)
         expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
     return match
 
