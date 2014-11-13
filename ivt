@@ -30,17 +30,14 @@ def get_test_strings():
     punctuation = ['.', '_', '-', '&']
     digits = ['1']
     symbols = whitespace + punctuation + digits
-    lengths = [1, 4, 8, 16, 32, 2048]
     numbers = [1, 1.1, 10, 100, 1000, 10**10, 10**50]
+    lengths = [1, 4, 8, 16, 32, 2048]
     # Empty string or with whitespace only
     test_strings = whitespace
     # With whitespace, punctuation or a digit in the beginning
     test_strings += [s + "teststring" for s in symbols]
     # With whitespace, punctuation or a digit in the middle
     test_strings += ["test" + s + "string" for s in symbols]
-    # Different lengths
-    test_strings += itertools.chain.from_iterable(
-        ("x" * (n - 1), "x" * n) for n in lengths)
     # Numbers
     test_strings += itertools.chain.from_iterable(
         (i, -i) for i in numbers)
@@ -49,6 +46,9 @@ def get_test_strings():
     test_strings += ["teststring", "Teststring", "TESTSTRING"]
     # Non-printable characters
     test_strings.append(r'test\0string')
+    # Different lengths
+    test_strings += itertools.chain.from_iterable(
+        ("x" * (n - 1), "x" * n) for n in lengths)
     return test_strings
 
 
