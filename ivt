@@ -88,7 +88,7 @@ def run_command(cmd, ns, should_succeed):
         sys.exit(1)
 
 
-def expand_regex(var_name, line, var_dict, ns, opt_params,
+def expand_regex(option, var_name, line, var_dict, ns, expanded,
                  should_succeed):
     found_match = False
     for ts in ns.test_string:
@@ -99,9 +99,11 @@ def expand_regex(var_name, line, var_dict, ns, opt_params,
         regex = var_dict[var_name[1:]]
         if re.search(regex, str(ts)):
             found_match = True
-            expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-        elif should_succeed:
-            expand_cmd(l2, var_dict, ns, opt_params, False)
+            expand_cmd(l2, var_dict, ns, expanded, should_succeed)
+            if option in expanded:
+                break
+        elif should_succeed and option not in expanded:
+            expand_cmd(l2, var_dict, ns, expanded, False)
     if not found_match:
         sys.stderr.write("ERROR: Unable to find a valid match for "
                          "'{}'.\n\n".format(var_name))
@@ -110,51 +112,53 @@ def expand_regex(var_name, line, var_dict, ns, opt_params,
         sys.exit(1)
 
 
-def expand_range(var_name, line, var_dict, ns, opt_params,
+def expand_range(option, var_name, line, var_dict, ns, expanded,
                  should_succeed):
     min_value, max_value = var_dict[var_name[1:]]
     if min_value:
         l2 = line.replace(var_name, str(min_value), 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
+        expand_cmd(l2, var_dict, ns, expanded, should_succeed)
         if should_succeed:
             l2 = line.replace(var_name, str(min_value - 1), 1)
-            expand_cmd(l2, var_dict, ns, opt_params, False)
+            expand_cmd(l2, var_dict, ns, expanded, False)
     if max_value:
         l2 = line.replace(var_name, str(max_value), 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-        if should_succeed:
+        expand_cmd(l2, var_dict, ns, expanded, should_succeed)
+        if should_succeed and option not in expanded:
             l2 = line.replace(var_name, str(max_value + 1), 1)
-            expand_cmd(l2, var_dict, ns, opt_params, False)
+            expand_cmd(l2, var_dict, ns, expanded, False)
 
 
-def expand_enum(var_name, line, var_dict, ns, opt_params,
+def expand_enum(option, var_name, line, var_dict, ns, expanded,
                 should_succeed):
     for enum in var_dict[var_name[1:]]:
         l2 = line.replace(var_name, shell_quote(enum), 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
-    if should_succeed:
+        expand_cmd(l2, var_dict, ns, expanded, should_succeed)
+        if option in expanded:
+           break
+    if should_succeed and option not in expanded:
         l2 = line.replace(var_name,
                           shell_quote("non-existent-enum"), 1)
-        expand_cmd(l2, var_dict, ns, opt_params, False)
+        expand_cmd(l2, var_dict, ns, expanded, False)
 
 
-def expand_optional_param(line, var_dict, ns, opt_params,
+def expand_optional_param(line, var_dict, ns, expanded,
                           should_succeed):
     match = re.search(r'\[\s*(.+?)\s*\]', line)
     if match:
         match2 = re.search(r'(-{1,2}\w+)=(\$\w+)', match.group(1))
         if match2:
-            opt_params.append(match2.group(1).strip())
+            expanded.append("<optional>" + match2.group(1).strip())
         # Validate command with the argument set
         l2 = line.replace(match.group(0), match.group(1), 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
+        expand_cmd(l2, var_dict, ns, expanded, should_succeed)
         # Validate command without the argument set
         l2 = line.replace(match.group(0), "", 1)
-        expand_cmd(l2, var_dict, ns, opt_params, should_succeed)
+        expand_cmd(l2, var_dict, ns, expanded, should_succeed)
     return match
 
 
-def expand_required_param(line, var_dict, ns, opt_params,
+def expand_required_param(line, var_dict, ns, expanded,
                           should_succeed):
     match = re.search(r'(\s+)(-{1,2}\w+)=(\$\w+)', line)
     if match:
@@ -164,34 +168,36 @@ def expand_required_param(line, var_dict, ns, opt_params,
                           match.group(3), 1)
         var_name = match.group(3)
         if var_dict.is_regex(var_name[1:]):
-            expand_regex(var_name, l2, var_dict, ns, opt_params,
-                         should_succeed)
+            expand_regex(match.group(2), var_name, l2, var_dict, ns,
+                         expanded, should_succeed)
         elif var_dict.is_range(var_name[1:]):
-            expand_range(var_name, l2, var_dict, ns, opt_params,
-                         should_succeed)
+            expand_range(match.group(2), var_name, l2, var_dict, ns,
+                         expanded, should_succeed)
         elif var_dict.is_enum(var_name[1:]):
-            expand_enum(var_name, l2, var_dict, ns, opt_params,
-                        should_succeed)
+            expand_enum(match.group(2), var_name, l2, var_dict, ns,
+                        expanded, should_succeed)
         else:
             sys.stderr.write("Error: variable '{}' is undefined\n"
                              .format(var_name))
             sys.exit(1)
-        if match.group(2) not in opt_params:
+        if match.group(2) not in expanded:
+            expanded.append(match.group(2))
             # FIXME This is wrong because e.g. on '--hour --minute 60',
             # the --hour parameter is not being tested as if no arg was
             # given, but with a '--minute' arg.
             #l2 = line.replace('=' + match.group(3), "", 1)
-            #expand_cmd(l2, var_dict, ns, opt_params, False)
+            #expand_cmd(l2, var_dict, ns, expanded, False)
+        if "<optional>" + match.group(2) not in expanded:
             l2 = line.replace(match.group(), "", 1)
-            expand_cmd(l2, var_dict, ns, opt_params, False)
+            expand_cmd(l2, var_dict, ns, expanded, False)
     return match
 
 
-def expand_cmd(line, var_dict, ns, opt_params, should_succeed):
-    if expand_optional_param(line, var_dict, ns, opt_params,
+def expand_cmd(line, var_dict, ns, expanded, should_succeed):
+    if expand_optional_param(line, var_dict, ns, expanded,
                              should_succeed):
         pass
-    elif expand_required_param(line, var_dict, ns, opt_params,
+    elif expand_required_param(line, var_dict, ns, expanded,
                                should_succeed):
         pass
     else:
