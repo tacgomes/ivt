@@ -90,7 +90,8 @@ def run_command(cmd, ns, should_succeed):
 
 def expand_regex(option, var_name, line, var_dict, ns, expanded,
                  should_succeed):
-    found_match = False
+    found_positive_match = False
+    found_negative_match = False
     for ts in ns.test_string:
         if isinstance(ts, (int, float)):
             l2 = line.replace(var_name, str(ts), 1)
@@ -98,17 +99,23 @@ def expand_regex(option, var_name, line, var_dict, ns, expanded,
             l2 = line.replace(var_name, shell_quote(ts), 1)
         regex = var_dict[var_name[1:]]
         if re.search(regex, str(ts)):
-            found_match = True
+            found_positive_match = True
             expand_cmd(l2, var_dict, ns, expanded, should_succeed)
             if option in expanded:
                 break
-        elif should_succeed and option not in expanded:
-            expand_cmd(l2, var_dict, ns, expanded, False)
-    if not found_match:
-        sys.stderr.write("ERROR: Unable to find a valid match for "
-                         "'{}'.\n\n".format(var_name))
-        sys.stderr.write("Use '--error-string ERROR_STRING' to "
-                         "specify a matching string.\n")
+        else:
+            found_negative_match = True
+            if should_succeed and option not in expanded:
+                expand_cmd(l2, var_dict, ns, expanded, False)
+    if not found_positive_match or not found_negative_match:
+        error_message = ("ERROR: Unable to find a{0}matching string "
+                         "for '{1}'.\n\n"
+                         "Use '--error-string ERROR_STRING' to specify "
+                         "a{0}matching string.\n")
+        if not found_positive_match:
+            sys.stderr.write(error_message.format(" ", var_name))
+        else:
+            sys.stderr.write(error_message.format(" not ", var_name))
         sys.exit(1)
 
 
