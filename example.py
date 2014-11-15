@@ -56,9 +56,6 @@ def main():
             invalid_value_err('username', namespace.username)
     elif namespace.subcommand == 'help':
          pass
-    else:
-        sys.stderr.write("Error: invalid value\n")
-        sys.exit(1)
 
 
 if __name__ == "__main__":
