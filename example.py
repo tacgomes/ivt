@@ -6,8 +6,8 @@ import argparse
 
 
 def invalid_value_err(option, value):
-    sys.stderr.write("Error: invalid value '{}' for '{}'\n".format(
-                     value, option))
+    sys.stderr.write("ERROR: Invalid argument '{}' for option '{}'.\n"
+                     .format(value, option))
     sys.exit(1)
 
 

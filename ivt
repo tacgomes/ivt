@@ -184,7 +184,7 @@ def expand_required_param(line, var_dict, ns, expanded,
             expand_enum(match.group(2), var_name, l2, var_dict, ns,
                         expanded, should_succeed)
         else:
-            sys.stderr.write("Error: variable '{}' is undefined\n"
+            sys.stderr.write("ERROR: Variable '{}' was not declared.\n"
                              .format(var_name))
             sys.exit(1)
         if match.group(2) not in expanded:
@@ -212,7 +212,7 @@ def expand_cmd(line, var_dict, ns, expanded, should_succeed):
 
 
 def invalid_variable_declaration_err(line):
-    sys.stderr.write("Invalid syntax in variable declaration: " +
+    sys.stderr.write("ERROR: Invalid variable declaration: " +
                      line + "\n")
     sys.exit(1)
 
