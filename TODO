@@ -16,3 +16,6 @@ TODO
 * `ivt` doesn't scale well: reduce the number of recursion calls made
 * Support testing not giving any argument to some parameter that
   requires an argument: 'command --set-hour '.
+* Explain terminology used (e.g. option, argument, ...) and ensure that
+  the terms are used consistently through the code and documentation.
+* Support validating positional parameters.
