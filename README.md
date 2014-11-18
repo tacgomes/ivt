@@ -2,8 +2,9 @@ ivt
 ===
 
 `ivt` it a tool to exercise and test the input validation paths for a
-command line tool which allows to specify options in the conventional
-GNU/POSIX syntax.  `ivt` stands for Input Validation Tester.
+command line tool that is compatible with the [GNU getopt][getopt]
+routines for parsing short and long options.  `ivt` stands for Input
+Validation Tester.
 
 It requires as input a spec file which defines the options that the
 command line tool supports, their valid combinations, and which are the
@@ -34,15 +35,19 @@ performed: whether the command succeeds if the input value is valid
 accordingly to the defined variable.  Executing commands with their
 optional options omitted will also be tested.
 
-The check for whether the input validation succeed or not based is on
-the command exit status. It's possible that the command failed due some
-other reason than the validation not being done properly.  To handle
-this situation, you can pass a `--error-string="Error: invalid value"`
-option which will search on the command's standard error for the given
-string.
+The check for whether the input validation succeeded or not based is on
+the command exit status.  It is possible that the command failed due
+some other reason than the validation not being done properly.  To
+handle this situation, you can pass a `--error-string="Error: invalid
+value"` option which will search on the command's standard error for the
+given string.
 
 
 Caveats
 -------
-Optional arguments (an argument can be or not given for some option) and
-multiple short options without arguments (e.g. -abc) are not supported.
+Required options (option must be given), options parsed by the GNU getopt
+[getopt_long_only][getopt_long_only] routine, and optional arguments (an
+argument may be or not given for some option) are not supported (yet).
+
+[getopt]: http://www.gnu.org/software/libc/manual/html_node/Getopt.html
+[getopt_long_only]: http://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Options.html#index-getopt_005flong_005fonly
