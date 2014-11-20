@@ -1,20 +1,22 @@
 TODO
 ====
-* Support nested not-required options:
-
-  command [ --foo=$foo [ --bar=$bar ] ]
-
 * Support optional arguments (an argument can be or not given for some
   option):
 
   command --foo=[$foo]
 
-* Support mutual exclusive options (only one can be given):
+* Add a test case for when an argument is not given for some option that
+  requires one.
+
+* Support mutually exclusive options (only one can be given):
 
   command --foo | --bar
-* Support float ranges
-* Support testing not giving any argument to some parameter that
-  requires an argument: 'command --set-hour '.
-* Explain terminology used (e.g. option, argument, ...) and ensure that
-  the terms are used consistently through the code and documentation.
-* Support validating positional parameters.
+
+* Support float ranges.
+
+* Support validating positional arguments (arguments that are neither an
+  option or an argument to an option).
+
+* Support nested option declaration:
+
+  command [ --foo=$foo [ --bar=$bar ] ]
